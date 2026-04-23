@@ -7,9 +7,9 @@
 
 | Campo | Respuesta |
 | :--- | :--- |
-| **Nombre** | |
-| **Apellido** | |
-| **Legajo** | |
+| **Nombre** | Emanuel |
+| **Apellido** | Yudica |
+| **Legajo** | 63290 |
 
 > **Fecha de entrega:** 28 de Abril de 2026
 
