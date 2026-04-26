@@ -1,0 +1,27 @@
+package com.bibliotech.service;
+
+import com.bibliotech.exception.ValidationException;
+import com.bibliotech.model.Resource;
+import com.bibliotech.repository.ResourceRepository;
+import java.util.Optional;
+
+public class ResourceServiceImpl implements ResourceService {
+    private final ResourceRepository resourceRepository;
+
+    public ResourceServiceImpl(ResourceRepository resourceRepository) {
+        this.resourceRepository = resourceRepository;
+    }
+
+    @Override
+    public void registerResource(Resource resource) throws ValidationException {
+        if (resourceRepository.findById(resource.isbn()).isPresent()) {
+            throw new ValidationException("Resource with ISBN " + resource.isbn() + " already exists.");
+        }
+        resourceRepository.save(resource);
+    }
+
+    @Override
+    public Optional<Resource> findByIsbn(String isbn) {
+        return resourceRepository.findById(isbn);
+    }
+}
