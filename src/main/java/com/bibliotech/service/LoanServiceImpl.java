@@ -4,6 +4,7 @@ import com.bibliotech.exception.*;
 import com.bibliotech.model.*;
 import com.bibliotech.repository.LoanRepository;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,6 +46,28 @@ public class LoanServiceImpl implements LoanService {
 
         loanRepository.save(loan);
         return loan;
+    }
+
+    @Override
+    public long returnResource(String isbn) throws LibraryException {
+        Loan activeLoan = loanRepository.findActiveByIsbn(isbn).stream()
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException("No active loan found for resource: " + isbn));
+
+        LocalDate today = LocalDate.now();
+        long delay = Math.max(0, ChronoUnit.DAYS.between(activeLoan.dueDate(), today));
+
+        Loan updatedLoan = new Loan(
+            activeLoan.id(),
+            activeLoan.isbn(),
+            activeLoan.memberDni(),
+            activeLoan.loanDate(),
+            activeLoan.dueDate(),
+            Optional.of(today)
+        );
+
+        loanRepository.save(updatedLoan);
+        return delay;
     }
 
     @Override
