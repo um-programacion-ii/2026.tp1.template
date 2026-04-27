@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface LoanService extends LibraryService {
     Loan registerLoan(String isbn, String memberDni) throws LibraryException;
+    long returnResource(String isbn) throws LibraryException;
     List<Loan> getHistory();
 }
