@@ -4,7 +4,6 @@ import com.bibliotech.exception.*;
 import com.bibliotech.model.*;
 import com.bibliotech.repository.LoanRepository;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,13 +13,16 @@ public class LoanServiceImpl implements LoanService {
     private final MemberService memberService;
     private final LoanRepository loanRepository;
     private final LoanValidator loanValidator;
+    private final LoanTrackerService loanTrackerService;
 
     public LoanServiceImpl(ResourceService resourceService, MemberService memberService, 
-                           LoanRepository loanRepository, LoanValidator loanValidator) {
+                           LoanRepository loanRepository, LoanValidator loanValidator,
+                           LoanTrackerService loanTrackerService) {
         this.resourceService = resourceService;
         this.memberService = memberService;
         this.loanRepository = loanRepository;
         this.loanValidator = loanValidator;
+        this.loanTrackerService = loanTrackerService;
     }
 
     @Override
@@ -54,8 +56,7 @@ public class LoanServiceImpl implements LoanService {
             .findFirst()
             .orElseThrow(() -> new EntityNotFoundException("No active loan found for resource: " + isbn));
 
-        LocalDate today = LocalDate.now();
-        long delay = Math.max(0, ChronoUnit.DAYS.between(activeLoan.dueDate(), today));
+        long delay = loanTrackerService.getDelay(activeLoan);
 
         Loan updatedLoan = new Loan(
             activeLoan.id(),
@@ -63,7 +64,7 @@ public class LoanServiceImpl implements LoanService {
             activeLoan.memberDni(),
             activeLoan.loanDate(),
             activeLoan.dueDate(),
-            Optional.of(today)
+            Optional.of(LocalDate.now())
         );
 
         loanRepository.save(updatedLoan);
