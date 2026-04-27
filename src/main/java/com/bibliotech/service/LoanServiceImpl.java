@@ -12,11 +12,14 @@ public class LoanServiceImpl implements LoanService {
     private final ResourceService resourceService;
     private final MemberService memberService;
     private final LoanRepository loanRepository;
+    private final LoanValidator loanValidator;
 
-    public LoanServiceImpl(ResourceService resourceService, MemberService memberService, LoanRepository loanRepository) {
+    public LoanServiceImpl(ResourceService resourceService, MemberService memberService, 
+                           LoanRepository loanRepository, LoanValidator loanValidator) {
         this.resourceService = resourceService;
         this.memberService = memberService;
         this.loanRepository = loanRepository;
+        this.loanValidator = loanValidator;
     }
 
     @Override
@@ -27,13 +30,9 @@ public class LoanServiceImpl implements LoanService {
         Member member = memberService.findByDni(memberDni)
             .orElseThrow(() -> new EntityNotFoundException("Member not found: " + memberDni));
 
-        if (!loanRepository.findActiveByIsbn(isbn).isEmpty()) {
-            throw new ResourceNotAvailableException("Resource is already loaned: " + isbn);
-        }
-
-        if (loanRepository.findActiveByMemberDni(memberDni).size() >= member.maxLoans()) {
-            throw new MemberLimitExceededException("Member reached maximum loan limit: " + memberDni);
-        }
+        List<Loan> activeLoans = loanRepository.findActiveByMemberDni(memberDni);
+        
+        loanValidator.validateNewLoan(isbn, member, activeLoans, loanRepository);
 
         Loan loan = new Loan(
             UUID.randomUUID(),
