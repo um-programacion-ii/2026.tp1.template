@@ -2,7 +2,9 @@ package com.bibliotech.service;
 
 import com.bibliotech.exception.ValidationException;
 import com.bibliotech.model.Member;
+import com.bibliotech.model.UserSearchCriteria;
 import com.bibliotech.repository.MemberRepository;
+import java.util.List;
 import java.util.Optional;
 
 public class MemberServiceImpl implements MemberService {
@@ -23,5 +25,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Optional<Member> findByDni(String dni) {
         return memberRepository.findById(dni);
+    }
+
+    @Override
+    public List<Member> search(UserSearchCriteria criteria) {
+        return memberRepository.search(criteria);
     }
 }
