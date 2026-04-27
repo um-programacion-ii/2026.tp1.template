@@ -1,5 +1,5 @@
 package com.bibliotech.model;
-
+import java.util.Optional;
 import java.time.LocalDate;
 
 public class Prestamo {
@@ -28,8 +28,8 @@ public class Prestamo {
         return fechaPrestamo;
     }
 
-    public LocalDate getFechaDevolucion() {
-        return fechaDevolucion;
+    public Optional<LocalDate> getFechaDevolucion() {
+        return Optional.ofNullable(fechaDevolucion);
     }
 
     public void registrarDevolucion(LocalDate fechaDevolucion) {
